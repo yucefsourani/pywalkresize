@@ -117,7 +117,7 @@ def resize_and_save(textview,image,saveas,width,height,ignore_aspect_ration):
             else:
                 check = subprocess.call("{} {} -resize {} {} ".format(imagemagik_exe,ll,convert,os.path.join(new_l,l)),shell=True)"""
 
-def main_walk(textview,spinner,button,location,width,height,gtk=True,ignore_aspect_ration=False): #Ignore Aspect Ratio
+def main_walk(break_,textview,spinner,button,location,width,height,gtk=True,ignore_aspect_ration=False): #Ignore Aspect Ratio
     if ignore_aspect_ration:
         convert = str(width)+"x"+str(height)+"!"
     else:
@@ -125,9 +125,13 @@ def main_walk(textview,spinner,button,location,width,height,gtk=True,ignore_aspe
     GLib.idle_add(spinner.start)
     GLib.idle_add(button.set_sensitive,False)
     for dirname,folders,files  in os.walk(location):
+        if break_[0]:
+            return 
         if "L_result_" in dirname:
             continue
         for file_ in files:
+            if break_[0]:
+                return
             ll = os.path.join(dirname,file_)
             if os.path.isfile(ll) and any([True for i in pictures if ll.lower().endswith(i)]):
                 new_l = os.path.join(dirname,"L_result_"+str(width)+"x"+str(height))
@@ -179,6 +183,7 @@ class AppWindow(Gtk.ApplicationWindow):
         self.set_size_request(800, 600)
         #self.set_resizable(False)
         self.set_border_width(10)
+        self.break_=[False]
 
         style_provider = Gtk.CssProvider()
         style_provider.load_from_data(css)
@@ -268,7 +273,7 @@ class AppWindow(Gtk.ApplicationWindow):
         self.__start(uri[8:])
         
     def __start(self,uri):
-        self.__t = threading.Thread(target = main_walk,args = (self.textview,
+        self.__t = threading.Thread(target = main_walk,args = (self.break_,self.textview,
                                                        self.spinner,
                                                        self.start_button,
                                                        uri,
@@ -302,9 +307,12 @@ class App(Gtk.Application):
     def do_activate(self):
         if not self.appwindow:
             self.appwindow = AppWindow(application=self, title=appwindowtitle)
+            self.appwindow.connect("delete-event",self.on_quit)
         self.appwindow.present()
 
     def on_quit(self, action, param):
+        if self.appwindow:
+            self.appwindow.break_[0]=True
         self.quit()
 
     def on_about(self,a,p):
