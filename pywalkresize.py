@@ -121,7 +121,7 @@ def main_walk(break_,textview,spinner,button,location,width,height,gtk=True,igno
     if ignore_aspect_ration:
         convert = str(width)+"x"+str(height)+"!"
     else:
-        conver = str(width)+"x"+str(height)
+        convert = str(width)+"x"+str(height)
     GLib.idle_add(spinner.start)
     GLib.idle_add(button.set_sensitive,False)
     for dirname,folders,files  in os.walk(location):
@@ -133,7 +133,7 @@ def main_walk(break_,textview,spinner,button,location,width,height,gtk=True,igno
             if break_[0]:
                 return
             ll = os.path.join(dirname,file_)
-            if os.path.isfile(ll) and any([True for i in pictures if ll.lower().endswith(i)]):
+            if os.path.isfile(ll) and any([True for i in pictures if ll.lower().endswith(i.lower())]):
                 new_l = os.path.join(dirname,"L_result_"+str(width)+"x"+str(height))
                 os.makedirs(new_l,exist_ok=True)
                 if gtk:
