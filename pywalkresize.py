@@ -6,7 +6,7 @@ import gi
 gi.require_version("Gtk","3.0")
 from gi.repository import Gtk,GLib,Gio,GdkPixbuf,Gdk
 
-pictures         = [i.get_name() for i in GdkPixbuf.Pixbuf.get_formats()]
+pictures         = [i.get_name() for i in GdkPixbuf.Pixbuf.get_formats()]+["jpg"]
 imagemagik_exe   = ".\ImageMagick-7.0.9-21-portable-Q16-x86\convert.exe"
 authors_         = ["Youssef Sourani <youssef.m.sourani@gmail.com>"]
 version_         = "1.0"
@@ -91,7 +91,10 @@ class Yes_Or_No(Gtk.MessageDialog):
 def resize_and_save(textview,image,saveas,width,height,ignore_aspect_ration):
     try:
         im = GdkPixbuf.Pixbuf.new_from_file_at_scale(image,width,height,ignore_aspect_ration)
-        if not im.savev(saveas,os.path.splitext(saveas)[-1][1:].lower(),[],[]):
+        type_ = os.path.splitext(saveas)[-1][1:].lower()
+        if type_ == "jpg":
+            type_ = "jpeg"
+        if not im.savev(saveas,type_,[],[]):
             GLib.idle_add(textview.in_text,"Resize {} Faild.".format(image))
             return False
     except Exception as e:
