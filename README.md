@@ -25,7 +25,7 @@ https://arfedora.blogspot.com
 
 # Download For Windows
 
-![Download](https://github.com/yucefsourani/pywalkresize/releases/download/v1.0/setup-pywalkresize.exe "Screenshot")
+![Download](https://raw.githubusercontent.com/yucefsourani/pywalkresize/master/windows_setup/setup-pywalkresize.exe "Screenshot")
 
 # Linux (Require Gtk/Pygi)
 
