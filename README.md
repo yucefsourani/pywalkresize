@@ -29,7 +29,7 @@ https://arfedora.blogspot.com
 
 # Linux (Require Gtk/Pygi)
 
-Download pywalkresize.py .
+clone repo and run  pywalkresize.py .
 
 
 
