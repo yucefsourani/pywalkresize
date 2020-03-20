@@ -1,7 +1,9 @@
+# -*- coding: utf-8 -*-
 import os
 import sys
 import subprocess
 import threading
+import gettext
 import gi
 gi.require_version("Gtk","3.0")
 from gi.repository import Gtk,GLib,Gio,GdkPixbuf,Gdk
@@ -12,12 +14,27 @@ authors_         = ["Youssef Sourani <youssef.m.sourani@gmail.com>"]
 version_         = "1.0"
 copyright_       = "Copyright © 2019 Youssef Sourani"
 website_         = "https://github.com/yucefsourani/pywalkresize"
-translators_     = ("translator-credit")
+translators_     = ("yucef sourani Arabic")
 appname          = "PyWalkResize"
 appwindowtitle   = "PyWalkResize"
 appid            = "com.github.yucefsourani.pywalkresize"
 icon_            = "com.github.yucefsourani.pywalkresize.png"
-comments_        = "برنامج لتعديل حجم الصور بشكل جماعي يتم توزيع هذا البرنامج على أمل أن يكون مفيدًا ، ولكن دون أي ضمان\nانظر رخصة جنو العمومية لمزيد من التفاصيل."
+
+if sys.platform.startswith('win'):
+    import locale
+    if os.getenv('LANG') is None:
+        lang, enc = locale.getdefaultlocale()
+        os.environ['LANG'] = lang
+is_pyinstaller = getattr(sys, 'frozen',False) and hasattr(sys, '_MEIPASS')
+if   is_pyinstaller:
+    ld = get_correct_path('locale')
+else:
+    exedir = os.path.dirname(sys.argv[0])
+    ld = os.path.join(exedir,'..', 'share', 'locale')
+    if not os.path.exists(ld):
+        ld = os.path.join(exedir, 'locale')
+gettext.install('pywalkresize', localedir=ld)
+comments_        = _("A program for resizing images \nbut without any guarantee \nSee the GNU General Public License for more details")
 
 
 MENU_XML="""
@@ -61,6 +78,13 @@ css = b"""
         }
         """
 
+def get_correct_path(relative_path):
+    if getattr(sys, 'frozen',False) and hasattr(sys, '_MEIPASS'):
+        base_path = sys._MEIPASS
+    else:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+    
 class Yes_Or_No(Gtk.MessageDialog):
     def __init__(self,msg,parent=None):
         Gtk.MessageDialog.__init__(self,buttons = Gtk.ButtonsType.OK_CANCEL)
@@ -96,10 +120,12 @@ def resize_and_save(textview,image,saveas,width,height,ignore_aspect_ration):
             type_ = "jpeg"
         if not im.savev(saveas,type_,[],[]):
             GLib.idle_add(textview.in_text,"Resize {} Faild.".format(image))
+            while Gtk.events_pending():
+                Gtk.main_iteration()
             return False
     except Exception as e:
         print("ERROR: {}.\nResize: {} Faild".format(e,image))
-        GLib.idle_add(textview.in_text,"ERROR: {}.\nResize: {} Faild".format(e,image))
+        GLib.idle_add(textview.in_text,"Resize: {} Faild".format(image))
         return False
     print(saveas)
     GLib.idle_add(textview.in_text,"Done : {} .".format(saveas))
@@ -140,7 +166,7 @@ def main_walk(break_,textview,spinner,button,location,width,height,gtk=True,igno
                 new_l = os.path.join(dirname,"L_result_"+str(width)+"x"+str(height))
                 os.makedirs(new_l,exist_ok=True)
                 if gtk:
-                    check = resize_and_save(textview,ll,os.path.join(new_l,file_),width,height,ignore_aspect_ration)
+                    check = resize_and_save(textview,ll,os.path.normpath(os.path.join(new_l,file_)),width,height,ignore_aspect_ration)
                 else:
                     check = subprocess.call("{} {} -resize {} {} ".format(imagemagik_exe,ll,convert,os.path.join(new_l,file_)),shell=True)
     GLib.idle_add(spinner.stop)
@@ -205,56 +231,58 @@ class AppWindow(Gtk.ApplicationWindow):
         
         self.choicefolder_label = Gtk.Label()
         self.choicefolder_label.get_style_context().add_class("h2")
-        self.choicefolder_label.set_label("إختار مجلد")
+        self.choicefolder_label.set_label(_("Select Folder"))
         self.folder = "file:///"+GLib.get_user_special_dir(GLib.UserDirectory.DIRECTORY_PICTURES )
         self.choicefolder = Gtk.FileChooserButton()
         self.choicefolder.props.action = Gtk.FileChooserAction(2)
         self.choicefolder.set_uri(self.folder)
-        self.svbox.pack_start(self.choicefolder_label,False,False,0)
-        self.fvbox.pack_start(self.choicefolder,False,False,0)
+        self.fvbox.pack_start(self.choicefolder_label,False,False,0)
+        self.svbox.pack_start(self.choicefolder,False,False,0)
 
 
         self.aspect_ration_switch_label = Gtk.Label()
         self.aspect_ration_switch_label.get_style_context().add_class("h2")
-        self.aspect_ration_switch_label.set_label("Aspect Ratio تفعيل")
+        self.aspect_ration_switch_label.set_label(_("Enable Aspect Ratio"))
         self.aspect_ration_switch = Gtk.Switch()
         self.grid_aspect_ration_switch = Gtk.Grid()
         self.grid_aspect_ration_switch.add(self.aspect_ration_switch)
-        self.svbox.pack_start(self.aspect_ration_switch_label,False,False,0)
-        self.fvbox.pack_start(self.grid_aspect_ration_switch,False,False,0)
+        self.fvbox.pack_start(self.aspect_ration_switch_label,False,False,0)
+        self.svbox.pack_start(self.grid_aspect_ration_switch,False,False,0)
         
 
         self.width_spin_hbox  = Gtk.HBox(spacing=10)
         width_spin_hbox       = Gtk.Label()
         width_spin_hbox.get_style_context().add_class("h2")
-        width_spin_hbox.set_label("العرض")
+        width_spin_hbox.set_label(_("Width"))
         width_adjustment = Gtk.Adjustment(value=200,lower=10,upper=3000,page_size=1,step_increment=1, page_increment=0)
         self.width_spin  = Gtk.SpinButton(max_width_chars=2,value=200,adjustment=width_adjustment) 
-        self.width_spin_hbox.pack_start(self.width_spin,True,False,0)
         self.width_spin_hbox.pack_start(width_spin_hbox,True,False,0)
+        self.width_spin_hbox.pack_start(self.width_spin,True,False,0)
+        
         
         
         self.height_spin_hbox  = Gtk.HBox(spacing=10)
         height_spin_label      = Gtk.Label()
         height_spin_label.get_style_context().add_class("h2")
-        height_spin_label.set_label("الإرتفاع")
+        height_spin_label.set_label(_("Height"))
         height_adjustment = Gtk.Adjustment(value=200,lower=10,upper=3000,page_size=1,step_increment=1, page_increment=0)
         self.height_spin  = Gtk.SpinButton(max_width_chars=2,value=200,adjustment=height_adjustment) 
-        self.height_spin_hbox.pack_start(self.height_spin,True,False,0)
         self.height_spin_hbox.pack_start(height_spin_label,True,False,0)
+        self.height_spin_hbox.pack_start(self.height_spin,True,False,0)
+        
         
 
         self.start_button = Gtk.Button()
         self.start_button.get_style_context().add_class("suggested-action")
-        self.start_button.set_label("تشغيل")
+        self.start_button.set_label(_("Run"))
         self.start_button.connect("clicked",self.__on_button_clicked)
 
         
         self.spinner  = Gtk.Spinner()
         self.textview = RunTextView()
 
-        self.svbox.pack_start(self.width_spin_hbox,True,False,0)
-        self.fvbox.pack_start(self.height_spin_hbox,True,False,0)
+        self.fvbox.pack_start(self.width_spin_hbox,True,False,0)
+        self.svbox.pack_start(self.height_spin_hbox,True,False,0)
         self.mainhbox.pack_start(self.fvbox,True,False,0)
         self.mainhbox.pack_start(self.svbox,True,False,0)
         self.mainvbox.pack_start(self.mainhbox,False,False,0)
@@ -269,7 +297,7 @@ class AppWindow(Gtk.ApplicationWindow):
         if not uri:
             return
             
-        y_or_n = Yes_Or_No("هل تريد الإستمرار ؟",self)
+        y_or_n = Yes_Or_No(_("Do you want to continue ?"),self)
         y_or_n.get_message_area().get_children()[0].get_style_context().add_class("h1")
         if not y_or_n.check():
             return
