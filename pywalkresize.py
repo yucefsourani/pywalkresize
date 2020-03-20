@@ -20,6 +20,13 @@ appwindowtitle   = "PyWalkResize"
 appid            = "com.github.yucefsourani.pywalkresize"
 icon_            = "com.github.yucefsourani.pywalkresize.png"
 
+def get_correct_path(relative_path):
+    if getattr(sys, 'frozen',False) and hasattr(sys, '_MEIPASS'):
+        base_path = sys._MEIPASS
+    else:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
 if sys.platform.startswith('win'):
     import locale
     if os.getenv('LANG') is None:
@@ -78,12 +85,6 @@ css = b"""
         }
         """
 
-def get_correct_path(relative_path):
-    if getattr(sys, 'frozen',False) and hasattr(sys, '_MEIPASS'):
-        base_path = sys._MEIPASS
-    else:
-        base_path = os.path.abspath(".")
-    return os.path.join(base_path, relative_path)
     
 class Yes_Or_No(Gtk.MessageDialog):
     def __init__(self,msg,parent=None):
