@@ -16,33 +16,38 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: pywalkresize.py:37
+#: pywalkresize.py:44
 msgid ""
 "A program for resizing images \n"
 "but without any guarantee \n"
 "See the GNU General Public License for more details"
 msgstr "برنامج لتعديل حجم الصور بشكل جماعي يتم توزيع هذا البرنامج على أمل أن يكون مفيدًا ، ولكن دون أي ضمان\nانظر رخصة جنو العمومية لمزيد من التفاصيل."
 
-#: pywalkresize.py:234
+
+#: pywalkresize.py:246
 msgid "Select Folder"
 msgstr "إختار مجلد"
 
-#: pywalkresize.py:245
+#: pywalkresize.py:257
 msgid "Enable Aspect Ratio"
 msgstr "تفعيل Aspect Ratio"
 
-#: pywalkresize.py:256
+#: pywalkresize.py:266
+msgid "Recursive"
+msgstr "نفذ على المجلدات الفرعية"
+
+#: pywalkresize.py:277
 msgid "Width"
 msgstr "العرض"
 
-#: pywalkresize.py:267
+#: pywalkresize.py:288
 msgid "Height"
 msgstr "الإرتفاع"
 
-#: pywalkresize.py:277
+#: pywalkresize.py:298
 msgid "Run"
 msgstr "تشغيل"
 
-#: pywalkresize.py:300
+#: pywalkresize.py:321
 msgid "Do you want to continue ?"
 msgstr "هل تريد الإستمرار ؟"

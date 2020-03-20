@@ -2,7 +2,7 @@
 
 block_cipher = None
 
-data_files = [("gpl.txt","."),("com.github.yucefsourani.pywalkresize.png","."),("pywalkresize.ico",".")]
+data_files = [("locale","locale"),("gpl.txt","."),("com.github.yucefsourani.pywalkresize.png","."),("pywalkresize.ico",".")]
 
 a = Analysis(['pywalkresize.py'],
              pathex=['.'],

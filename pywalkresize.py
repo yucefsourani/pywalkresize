@@ -145,34 +145,47 @@ def resize_and_save(textview,image,saveas,width,height,ignore_aspect_ration):
             else:
                 check = subprocess.call("{} {} -resize {} {} ".format(imagemagik_exe,ll,convert,os.path.join(new_l,l)),shell=True)"""
 
-def main_walk(break_,textview,spinner,button,location,width,height,gtk=True,ignore_aspect_ration=False): #Ignore Aspect Ratio
+def main_walk(break_,textview,spinner,button,location,width,height,gtk=True,ignore_aspect_ration=False,recursive=False):
     if ignore_aspect_ration:
         convert = str(width)+"x"+str(height)+"!"
     else:
         convert = str(width)+"x"+str(height)
     GLib.idle_add(spinner.start)
     GLib.idle_add(button.set_sensitive,False)
-    for dirname,folders,files  in os.walk(location):
-        if break_[0]:
-            return 
-        if "L_result_" in dirname:
-            continue
-        for file_ in files:
+    if not recursive:
+        for file_ in os.listdir(location):
             if break_[0]:
-                return
-            ll = os.path.join(dirname,file_)
+                return 
+            ll = os.path.join(location,file_)
             if os.path.isfile(ll) and any([True for i in pictures if ll.lower().endswith(i.lower())]):
-                new_l = os.path.join(dirname,"L_result_"+str(width)+"x"+str(height))
+                new_l = os.path.join(location,"L_result_"+str(width)+"x"+str(height))
                 os.makedirs(new_l,exist_ok=True)
                 if gtk:
                     check = resize_and_save(textview,ll,os.path.normpath(os.path.join(new_l,file_)),width,height,ignore_aspect_ration)
                 else:
                     check = subprocess.call("{} {} -resize {} {} ".format(imagemagik_exe,ll,convert,os.path.join(new_l,file_)),shell=True)
+    else:
+        for dirname,folders,files  in os.walk(location):
+            if break_[0]:
+                return 
+            if "L_result_" in dirname:
+                continue
+            for file_ in files:
+                if break_[0]:
+                    return
+                ll = os.path.join(dirname,file_)
+                if os.path.isfile(ll) and any([True for i in pictures if ll.lower().endswith(i.lower())]):
+                    new_l = os.path.join(dirname,"L_result_"+str(width)+"x"+str(height))
+                    os.makedirs(new_l,exist_ok=True)
+                    if gtk:
+                        check = resize_and_save(textview,ll,os.path.normpath(os.path.join(new_l,file_)),width,height,ignore_aspect_ration)
+                    else:
+                        check = subprocess.call("{} {} -resize {} {} ".format(imagemagik_exe,ll,convert,os.path.join(new_l,file_)),shell=True)
     GLib.idle_add(spinner.stop)
     GLib.idle_add(button.set_sensitive,True)
 
 
-#main_walk("C:\\Users\\yucef\\Pictures","800","600",True,False)
+
 
 class RunTextView(Gtk.ScrolledWindow):
     def __init__(self,end="\n\n",
@@ -248,6 +261,15 @@ class AppWindow(Gtk.ApplicationWindow):
         self.fvbox.pack_start(self.aspect_ration_switch_label,False,False,0)
         self.svbox.pack_start(self.grid_aspect_ration_switch,False,False,0)
         
+        self.recursive_switch_label = Gtk.Label()
+        self.recursive_switch_label.get_style_context().add_class("h2")
+        self.recursive_switch_label.set_label(_("Recursive"))
+        self.recursive_switch = Gtk.Switch()
+        self.grid_recursive_switch = Gtk.Grid()
+        self.grid_recursive_switch.add(self.recursive_switch)
+        self.fvbox.pack_start(self.recursive_switch_label,False,False,0)
+        self.svbox.pack_start(self.grid_recursive_switch,False,False,0)
+        
 
         self.width_spin_hbox  = Gtk.HBox(spacing=10)
         width_spin_hbox       = Gtk.Label()
@@ -310,7 +332,8 @@ class AppWindow(Gtk.ApplicationWindow):
                                                        self.width_spin.get_value_as_int(),
                                                        self.height_spin.get_value_as_int(),
                                                        True,
-                                                       self.aspect_ration_switch.get_state())).start()
+                                                       self.aspect_ration_switch.get_state(),
+                                                       self.recursive_switch.get_state())).start()
         
 
 
