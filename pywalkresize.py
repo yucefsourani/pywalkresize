@@ -120,8 +120,6 @@ def resize_and_save(textview,image,saveas,width,height,ignore_aspect_ration):
             type_ = "jpeg"
         if not im.savev(saveas,type_,[],[]):
             GLib.idle_add(textview.in_text,"Resize {} Faild.".format(image))
-            while Gtk.events_pending():
-                Gtk.main_iteration()
             return False
     except Exception as e:
         print("ERROR: {}.\nResize: {} Faild".format(e,image))
