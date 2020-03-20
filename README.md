@@ -31,6 +31,12 @@ https://arfedora.blogspot.com
 
 clone repo and run  pywalkresize.py .
 
+git clone https://github.com/yucefsourani/pywalkresize -b master
+
+chmod 755 pywalkresize/pywalkresize.py
+
+python3 pywalkresize/pywalkresize.py
+
 
 
 # Screenshot
