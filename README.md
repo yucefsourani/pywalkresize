@@ -23,7 +23,8 @@ https://github.com/pyinstaller/pyinstaller/issues?utf8=%E2%9C%93&q=windows+defen
 
 https://arfedora.blogspot.com
 
-# Download For Windows
+
+# Download For Windows (requires  Visual C++ Redistributable)
 
 ![Download](https://raw.githubusercontent.com/yucefsourani/pywalkresize/master/windows_setup/setup-pywalkresize.exe "Screenshot")
 
